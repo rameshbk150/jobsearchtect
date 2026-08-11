@@ -30,6 +30,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const [message, setMessage] = useState({
     type: "",
     text: "",
@@ -38,17 +39,15 @@ export default function RegisterPage() {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setFormData((previousData) => ({
-      ...previousData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
 
-    if (message.text) {
-      setMessage({
-        type: "",
-        text: "",
-      });
-    }
+    setMessage({
+      type: "",
+      text: "",
+    });
   };
 
   const handleRegister = async (event) => {
@@ -72,16 +71,13 @@ export default function RegisterPage() {
 
     try {
       setLoading(true);
-      setMessage({
-        type: "",
-        text: "",
-      });
 
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
           name: formData.name.trim(),
           email: formData.email.trim().toLowerCase(),
@@ -96,23 +92,24 @@ export default function RegisterPage() {
           type: "error",
           text: data.message || "Registration failed.",
         });
+
         return;
       }
 
       setMessage({
         type: "success",
-        text: "Account created successfully. Redirecting to login...",
+        text: "Account created successfully.",
       });
 
       setTimeout(() => {
         router.push("/login");
       }, 1000);
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error(error);
 
       setMessage({
         type: "error",
-        text: "Unable to connect to the server.",
+        text: "Unable to connect to server.",
       });
     } finally {
       setLoading(false);
@@ -120,30 +117,27 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-50 px-4 py-12">
-      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-blue-100 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-violet-100 blur-3xl" />
-
-      <div className="relative w-full max-w-md">
+    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12">
+      <div className="w-full max-w-md">
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-zinc-600 transition hover:text-black"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-zinc-600"
         >
           <ArrowLeft size={17} />
           Back to home
         </Link>
 
-        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xl shadow-zinc-200/60 sm:p-8">
+        <div className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-xl">
           <div className="mb-8 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
               <BriefcaseBusiness size={26} />
             </div>
 
-            <h1 className="mt-5 text-3xl font-bold tracking-tight text-black">
+            <h1 className="mt-5 text-3xl text-blue-600 font-bold">
               Create your account
             </h1>
 
-            <p className="mt-2 text-sm leading-6 text-zinc-600">
+            <p className="mt-2 text-sm text-zinc-600">
               Register to search jobs and manage your profile.
             </p>
           </div>
@@ -152,7 +146,7 @@ export default function RegisterPage() {
             <div
               className={`mb-5 rounded-xl border px-4 py-3 text-sm ${
                 message.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  ? "border-green-200 bg-green-50 text-green-700"
                   : "border-red-200 bg-red-50 text-red-700"
               }`}
             >
@@ -161,12 +155,11 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleRegister} className="space-y-5">
+
+            {/* Name */}
             <div>
-              <label
-                htmlFor="name"
-                className="mb-2 block text-sm font-semibold text-zinc-800"
-              >
-                Full name
+              <label className="mb-2 block text-sm text-gray-800 font-semibold">
+                Full Name
               </label>
 
               <div className="relative">
@@ -176,25 +169,21 @@ export default function RegisterPage() {
                 />
 
                 <input
-                  id="name"
                   type="text"
                   name="name"
                   required
-                  autoComplete="name"
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Enter your full name"
-                  className="w-full rounded-xl border border-zinc-300 bg-white py-3 pl-11 pr-4 text-sm text-black outline-none transition placeholder:text-zinc-400 focus:border-black focus:ring-4 focus:ring-zinc-100"
+                  className="w-full rounded-xl border text-gray-600 border-zinc-300 py-3 pl-11 pr-4 outline-none focus:border-black"
                 />
               </div>
             </div>
 
+            {/* Email */}
             <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-semibold text-zinc-800"
-              >
-                Email address
+              <label className="mb-2 block text-sm text-gray-800 font-semibold">
+                Email Address
               </label>
 
               <div className="relative">
@@ -204,24 +193,20 @@ export default function RegisterPage() {
                 />
 
                 <input
-                  id="email"
                   type="email"
                   name="email"
                   required
-                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
-                  className="w-full rounded-xl border border-zinc-300 bg-white py-3 pl-11 pr-4 text-sm text-black outline-none transition placeholder:text-zinc-400 focus:border-black focus:ring-4 focus:ring-zinc-100"
+                  className="w-full rounded-xl border border-zinc-300  text-gray-600 py-3 pl-11 pr-4 outline-none focus:border-black"
                 />
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-semibold text-zinc-800"
-              >
+              <label className="mb-2 block text-sm text-gray-800 font-semibold">
                 Password
               </label>
 
@@ -232,35 +217,34 @@ export default function RegisterPage() {
                 />
 
                 <input
-                  id="password"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   required
                   minLength={6}
-                  autoComplete="new-password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Minimum 6 characters"
-                  className="w-full rounded-xl border border-zinc-300 bg-white py-3 pl-11 pr-12 text-sm text-black outline-none transition placeholder:text-zinc-400 focus:border-black focus:ring-4 focus:ring-zinc-100"
+                  className="w-full rounded-xl border border-zinc-300 text-gray-600 py-3 pl-11 pr-12 outline-none focus:border-black"
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 transition hover:text-black"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
                 >
-                  {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                  {showPassword ? (
+                    <EyeOff size={19} />
+                  ) : (
+                    <Eye size={19} />
+                  )}
                 </button>
               </div>
             </div>
 
+            {/* Confirm Password */}
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="mb-2 block text-sm font-semibold text-zinc-800"
-              >
-                Confirm password
+              <label className="mb-2 block text-sm text-gray-800 font-semibold">
+                Confirm Password
               </label>
 
               <div className="relative">
@@ -270,29 +254,22 @@ export default function RegisterPage() {
                 />
 
                 <input
-                  id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   required
                   minLength={6}
-                  autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Enter password again"
-                  className="w-full rounded-xl border border-zinc-300 bg-white py-3 pl-11 pr-12 text-sm text-black outline-none transition placeholder:text-zinc-400 focus:border-black focus:ring-4 focus:ring-zinc-100"
+                  className="w-full rounded-xl border border-zinc-300  text-gray-600 py-3 pl-11 pr-12 outline-none focus:border-black"
                 />
 
                 <button
                   type="button"
                   onClick={() =>
-                    setShowConfirmPassword((value) => !value)
+                    setShowConfirmPassword(!showConfirmPassword)
                   }
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 transition hover:text-black"
-                  aria-label={
-                    showConfirmPassword
-                      ? "Hide confirm password"
-                      : "Show confirm password"
-                  }
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
                 >
                   {showConfirmPassword ? (
                     <EyeOff size={19} />
@@ -303,13 +280,20 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-4 py-3.5 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3.5 font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
             >
-              {loading && <LoaderCircle size={19} className="animate-spin" />}
-              {loading ? "Creating account..." : "Create account"}
+              {loading && (
+                <LoaderCircle
+                  size={19}
+                  className="animate-spin"
+                />
+              )}
+
+              {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 
@@ -317,7 +301,7 @@ export default function RegisterPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-black underline-offset-4 hover:underline"
+              className="font-semibold text-black hover:underline"
             >
               Sign in
             </Link>

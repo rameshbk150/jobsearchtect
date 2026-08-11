@@ -1,40 +1,69 @@
 import HeroSection from "@/components/HeroSection";
-import JobsSection from "@/components/JobsSection";
-import CompaniesSection from "@/components/CompaniesSection";
-import AboutPage from "./about/page";
-import { aboutData } from "@/data/DataSite";
+
 
 import { jobsData } from "@/data/DataSite";
 import { companiesData } from "@/data/Companies";
+import JobCard from "@/components/JobCard";
+import CompanyCard from "@/components/CompanyCard";
+import Link from "next/link";
+
 
 export default function Home() {
+  
   return (
     <main>
       <HeroSection />
-      <AboutPage data={aboutData} />
 
-      <section className="bg-white py-24">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-16 text-center">
-            <span className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700">
-              Latest Opportunities
-            </span>
+      {/* jobs section */}
 
-            <h2 className="mt-6 text-4xl font-bold text-black md:text-5xl">
-              Find Your Dream Job
-            </h2>
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">   
+        <div className="mb-8">
 
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-zinc-600">
-              Discover top opportunities from leading companies and startups
-              hiring talented professionals worldwide.
-            </p>
-          </div>
+          <h1 className="px-10 font-semibold  text-2xl my-10 text-center text-blue-500">Latest opening jobs </h1>
 
-          <JobsSection jobs={jobsData} />
+          <Link href="/jobs" className="text-blue-600 text-2xl  text-left"> View all jobs </Link>
+
         </div>
+
+
+        <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3">
+
+          {
+            jobsData.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))
+          }
+        </div>
+
       </section>
 
-      <CompaniesSection companies={companiesData} />
+
+      <section className="mt-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        <div className="mb-10">
+          <h1 className="px-10 font-semibold  text-2xl my-10 text-center text-blue-500">Top Companies</h1>
+          
+
+        </div>
+
+        <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-6">
+          {
+            companiesData.map((company)=>(
+              <CompanyCard
+              key={company.id}
+              company={company}
+
+              />
+            ))
+          }
+</div>
+
+
+      </section>
+
+
+
+
     </main>
   );
 }

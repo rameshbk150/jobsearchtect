@@ -16,6 +16,12 @@ import {
   Users,
 } from "lucide-react";
 
+export const metadata = {
+  title: "About Us | RB Group",
+  description:
+    "Learn more about RB Group, our mission, vision, values and how we connect talented candidates with better career opportunities.",
+};
+
 const iconMap = {
   briefcase: BriefcaseBusiness,
   user: UserRoundCheck,
@@ -27,7 +33,164 @@ const iconMap = {
   growth: TrendingUp,
 };
 
-export default function AboutPage({ data }) {
+const aboutData = {
+  companyName: "RB Group",
+
+  hero: {
+    badge: "About RB Group",
+    title: "Connecting Talent",
+    highlightedTitle: "With Better Opportunities",
+    description:
+      "RB Group connects talented job seekers with trusted employers and meaningful career opportunities. We make recruitment simple, transparent and effective.",
+
+    primaryButton: {
+      label: "Explore Jobs",
+      href: "/jobs",
+    },
+
+    secondaryButton: {
+      label: "Contact Us",
+      href: "/contact",
+    },
+  },
+
+  companyCard: {
+    badge: "Trusted Recruitment Partner",
+    title: "Building Careers. Growing Businesses.",
+    description:
+      "We help candidates discover suitable career opportunities while helping companies find the right talent for their teams.",
+
+    features: [
+      {
+        icon: "briefcase",
+        title: "Quality Opportunities",
+        description:
+          "Find suitable jobs from growing and trusted businesses.",
+      },
+      {
+        icon: "user",
+        title: "Candidate Focused",
+        description:
+          "We connect people with opportunities matching their skills.",
+      },
+      {
+        icon: "globe",
+        title: "Growing Network",
+        description:
+          "Explore opportunities across different industries and locations.",
+      },
+    ],
+  },
+
+  stats: [
+    {
+      value: "500+",
+      label: "Job Opportunities",
+    },
+    {
+      value: "100+",
+      label: "Hiring Partners",
+    },
+    {
+      value: "1K+",
+      label: "Candidates",
+    },
+    {
+      value: "10+",
+      label: "Industries",
+    },
+  ],
+
+  story: {
+    cardTitle: "Our Journey",
+    cardDescription:
+      "RB Group was created with one clear purpose — making job searching and recruitment easier, more transparent and more effective.",
+
+    promiseTitle: "Our Promise",
+    promiseDescription:
+      "We focus on genuine opportunities, professional communication and meaningful connections between employers and candidates.",
+
+    label: "Our Story",
+    title: "Helping People Build Better Careers",
+    description:
+      "Finding the right job can be difficult. RB Group simplifies the process by bringing useful and relevant job opportunities together in one place.",
+
+    secondDescription:
+      "We also support businesses by helping them connect with suitable candidates and build stronger teams.",
+  },
+
+  missionVision: [
+    {
+      icon: "target",
+      title: "Our Mission",
+      description:
+        "To connect talented candidates with genuine job opportunities through a simple and reliable recruitment platform.",
+    },
+    {
+      icon: "growth",
+      title: "Our Vision",
+      description:
+        "To become a trusted recruitment platform that creates long-term growth opportunities for candidates and businesses.",
+    },
+  ],
+
+  valuesSection: {
+    label: "Our Values",
+    title: "What Drives RB Group",
+    description:
+      "Strong values guide our relationships with candidates, employers and our growing professional community.",
+  },
+
+  values: [
+    {
+      icon: "shield",
+      title: "Trust",
+      description:
+        "Transparency and reliability are at the heart of everything we do.",
+    },
+    {
+      icon: "handshake",
+      title: "Partnership",
+      description:
+        "We work closely with candidates and employers to create better results.",
+    },
+    {
+      icon: "lightbulb",
+      title: "Innovation",
+      description:
+        "We continuously improve how people discover jobs and companies find talent.",
+    },
+    {
+      icon: "growth",
+      title: "Growth",
+      description:
+        "We believe every opportunity should help people and businesses grow.",
+    },
+  ],
+
+  whyChoose: {
+    label: "Why Choose Us",
+    title: "A Better Way to Find Opportunities",
+    description:
+      "RB Group provides a simple, professional and candidate-focused job search experience.",
+
+    button: {
+      label: "Browse Jobs",
+      href: "/jobs",
+    },
+
+    points: [
+      "Simple job search experience",
+      "Relevant career opportunities",
+      "Trusted employer connections",
+      "Candidate-focused approach",
+      "Easy application process",
+      "Opportunities across industries",
+    ],
+  },
+};
+
+export default function AboutPage() {
   const {
     companyName,
     hero,
@@ -38,8 +201,7 @@ export default function AboutPage({ data }) {
     valuesSection,
     values,
     whyChoose,
-    cta,
-  } = data;
+  } = aboutData;
 
   return (
     <main className="overflow-hidden bg-white">
@@ -48,12 +210,10 @@ export default function AboutPage({ data }) {
         <div className="absolute -right-32 -top-32 h-[450px] w-[450px] rounded-full bg-blue-500/20 blur-[130px]" />
 
         <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 md:py-28 lg:grid-cols-2 lg:px-8">
-          
           {/* Hero Content */}
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-blue-200">
               <Sparkles size={16} />
-
               {hero.badge}
             </div>
 
@@ -75,7 +235,6 @@ export default function AboutPage({ data }) {
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white transition hover:bg-blue-500"
               >
                 {hero.primaryButton.label}
-
                 <ArrowRight size={18} />
               </Link>
 
@@ -91,7 +250,6 @@ export default function AboutPage({ data }) {
           {/* Company Card */}
           <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl">
             <div className="rounded-[24px] bg-white p-7 shadow-2xl">
-              
               <div className="flex items-center justify-between">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
                   <Building2 size={28} />
@@ -99,12 +257,15 @@ export default function AboutPage({ data }) {
 
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
                   <BadgeCheck size={14} />
-
                   {companyCard.badge}
                 </span>
               </div>
 
-              <h2 className="mt-6 text-2xl font-bold text-slate-950">
+              <p className="mt-5 text-sm font-semibold uppercase tracking-wider text-blue-600">
+                {companyName}
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold text-slate-950">
                 {companyCard.title}
               </h2>
 
@@ -146,7 +307,7 @@ export default function AboutPage({ data }) {
       {/* STATS */}
       <section>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="-mt-7 relative z-10 grid overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative z-10 -mt-7 grid overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
               <div
                 key={stat.label}
@@ -168,7 +329,6 @@ export default function AboutPage({ data }) {
       {/* STORY */}
       <section className="py-20 sm:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-          
           <div className="relative overflow-hidden rounded-[32px] bg-slate-950 p-8 sm:p-10">
             <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-blue-500/20 blur-[80px]" />
 
@@ -304,10 +464,9 @@ export default function AboutPage({ data }) {
 
             <Link
               href={whyChoose.button.href}
-              className="mt-7 inline-flex items-center gap-2 font-semibold text-blue-600"
+              className="mt-7 inline-flex items-center gap-2 font-semibold text-blue-600 transition hover:text-blue-700"
             >
               {whyChoose.button.label}
-
               <ArrowRight size={18} />
             </Link>
           </div>
@@ -329,6 +488,32 @@ export default function AboutPage({ data }) {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-12 text-center sm:px-10 sm:py-16">
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-100">
+            Start Your Career Journey
+          </p>
+
+          <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Find the Right Opportunity With RB Group
+          </h2>
+
+          <p className="mx-auto mt-5 max-w-xl leading-7 text-blue-100">
+            Explore available jobs and take the next step toward your career
+            goals.
+          </p>
+
+          <Link
+            href="/jobs"
+            className="mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-7 text-sm font-bold text-blue-700 transition hover:bg-blue-50"
+          >
+            View Available Jobs
+            <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
     </main>

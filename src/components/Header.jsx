@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+
 import {
   Menu,
   X,
@@ -10,262 +12,242 @@ import {
   LogIn,
   UserPlus,
   ChevronRight,
+  ChevronDown,
+  UserRound,
+  LogOut,
+  Coins,
+  Settings,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 export default function Header({ siteData }) {
+  const router = useRouter();
+
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [profileMenu, setProfileMenu] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
+
+  const profileRef = useRef(null);
+
+  // ======================================================
+  // LOAD USER FROM LOCAL STORAGE
+  // ======================================================
+
+  useEffect(() => {
+    const loadUser = () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+
+        if (!storedUser) {
+          setUser(null);
+          setAuthLoaded(true);
+          return;
+        }
+
+        const parsedUser = JSON.parse(storedUser);
+
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Unable to load logged-in user:", error);
+
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+
+        setUser(null);
+      } finally {
+        setAuthLoaded(true);
+      }
+    };
+
+    loadUser();
+
+    // Same-tab login/logout updates
+    window.addEventListener("authChanged", loadUser);
+
+    // Updates if auth changes in another browser tab
+    window.addEventListener("storage", loadUser);
+
+    return () => {
+      window.removeEventListener("authChanged", loadUser);
+      window.removeEventListener("storage", loadUser);
+    };
+  }, []);
+
+  // ======================================================
+  // CLOSE PROFILE DROPDOWN WHEN CLICKING OUTSIDE
+  // ======================================================
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target)
+      ) {
+        setProfileMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, []);
+
+  // ======================================================
+  // CLOSE MOBILE MENU ON RESIZE
+  // ======================================================
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 900) {
+        setMobileMenu(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // ======================================================
+  // LOGOUT
+  // ======================================================
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+    setUser(null);
+    setProfileMenu(false);
+    setMobileMenu(false);
+
+    window.dispatchEvent(new Event("authChanged"));
+
+    router.push("/");
+    router.refresh();
+  };
+
+  // ======================================================
+  // USER INITIAL
+  // ======================================================
+
+  const getInitial = () => {
+    if (!user?.name) return "U";
+
+    return user.name.trim().charAt(0).toUpperCase();
+  };
+
+  // Prevent brief Login/Register flash before localStorage loads
+  if (!authLoaded) {
+    return (
+      <header className="main-header">
+        <div className="header-container">
+          <Link
+            href="/"
+            className="header-logo"
+            aria-label="Homepage"
+          >
+            <Image
+              src={siteData.logo}
+              alt={siteData?.name || "Job Portal"}
+              width={700}
+              height={400}
+              priority
+              className="header-logo-image"
+            />
+          </Link>
+        </div>
+      </header>
+    );
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
-      {/* Main Navbar */}
-      <div className="mx-auto flex h-[86px] w-full max-w-[1440px] items-center px-4 sm:px-6 lg:px-8 xl:px-10">
+    <header className="main-header">
+      <div className="header-container">
 
-        {/* ================= LOGO ================= */}
+        {/* ================================================= */}
+        {/* LOGO */}
+        {/* ================================================= */}
+
         <Link
           href="/"
-          className="flex h-full shrink-0 items-center"
-          aria-label="Go to homepage"
+          className="header-logo"
+          aria-label="Homepage"
+          onClick={() => {
+            setMobileMenu(false);
+            setProfileMenu(false);
+          }}
         >
           <Image
             src={siteData.logo}
-            alt="Job Portal Logo"
+            alt={siteData?.name || "Job Portal"}
             width={700}
             height={400}
             priority
-            className="h-[92px] w-auto max-w-[250px] object-contain sm:max-w-[230px] lg:h-[78px] lg:max-w-[350px]"
+            className="header-logo-image"
           />
         </Link>
 
-        {/* ================= DESKTOP SEARCH ================= */}
-        <div className="mx-7 hidden min-w-0 flex-1 lg:block xl:mx-10">
-          <div className="relative mx-auto max-w-[470px]">
+        {/* ================================================= */}
+        {/* DESKTOP SEARCH */}
+        {/* ================================================= */}
+
+        <div className="header-search-area">
+          <div className="header-search-box">
+
             <Search
-              size={19}
-              strokeWidth={2}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              size={18}
+              className="header-search-icon"
             />
 
             <input
               type="search"
               placeholder="Search jobs, companies, skills..."
-              className="
-                h-[48px]
-                w-full
-                rounded-xl
-                border
-                border-slate-200
-                bg-slate-50
-                pl-11
-                pr-4
-                text-[14px]
-                text-slate-800
-                outline-none
-                transition-all
-                placeholder:text-slate-400
-                hover:border-slate-300
-                focus:border-blue-500
-                focus:bg-white
-                focus:ring-4
-                focus:ring-blue-500/10
-              "
+              className="header-search-input"
             />
+
           </div>
         </div>
 
-        {/* ================= DESKTOP NAVIGATION ================= */}
-        <nav className="ml-auto hidden shrink-0 items-center md:flex">
-          <div className="flex items-center gap-1">
+        {/* ================================================= */}
+        {/* DESKTOP NAV */}
+        {/* ================================================= */}
+
+        <nav className="header-desktop-nav">
+
+          <div className="header-nav-links">
+
             {siteData.navLinks?.map((link) => (
               <Link
-                key={link.href}
                 href={link.href}
-                className="
-                  rounded-lg
-                  px-3
-                  py-2.5
-                  text-[14px]
-                  font-medium
-                  text-slate-600
-                  transition-all
-                  hover:bg-blue-50
-                  hover:text-blue-600
-                "
+                key={link.href}
+                className="header-nav-link"
               >
                 {link.name}
               </Link>
             ))}
+
           </div>
 
-          {/* Divider */}
-          <div className="mx-4 h-7 w-px bg-slate-200" />
+          <div className="header-divider" />
 
-          {/* Login */}
-          <Link
-            href="/login"
-            className="
-              inline-flex
-              h-11
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              border
-              border-slate-200
-              bg-white
-              px-4
-              text-sm
-              font-semibold
-              text-slate-700
-              transition-all
-              hover:border-blue-300
-              hover:bg-blue-50
-              hover:text-blue-600
-            "
-          >
-            <LogIn size={17} />
-            Login
-          </Link>
+          {/* ================================================= */}
+          {/* BEFORE LOGIN */}
+          {/* ================================================= */}
 
-          {/* Register */}
-          <Link
-            href="/register"
-            className="
-              ml-2
-              inline-flex
-              h-11
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-blue-600
-              px-5
-              text-sm
-              font-semibold
-              text-white
-              shadow-sm
-              transition-all
-              hover:bg-blue-700
-              hover:shadow-md
-            "
-          >
-            <UserPlus size={17} />
-            Register
-          </Link>
-        </nav>
+          {!user && (
+            <div className="header-auth-buttons">
 
-        {/* ================= MOBILE BUTTON ================= */}
-        <button
-          type="button"
-          onClick={() => setMobileMenu((prev) => !prev)}
-          className="
-            ml-auto
-            flex
-            h-11
-            w-11
-            items-center
-            justify-center
-            rounded-xl
-            border
-            border-slate-200
-            bg-slate-50
-            text-slate-700
-            transition
-            hover:bg-slate-100
-            md:hidden
-          "
-          aria-label="Toggle navigation menu"
-          aria-expanded={mobileMenu}
-        >
-          {mobileMenu ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* ================= MOBILE NAVIGATION ================= */}
-      {mobileMenu && (
-        <div className="border-t border-slate-100 bg-white md:hidden">
-          <div className="mx-auto max-w-7xl px-4 pb-5 pt-4">
-
-            {/* Mobile Search */}
-            <div className="relative mb-4">
-              <Search
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              />
-
-              <input
-                type="search"
-                placeholder="Search jobs, companies, skills..."
-                className="
-                  h-12
-                  w-full
-                  rounded-xl
-                  border
-                  border-slate-200
-                  bg-slate-50
-                  pl-11
-                  pr-4
-                  text-sm
-                  outline-none
-                  transition
-                  focus:border-blue-500
-                  focus:bg-white
-                  focus:ring-4
-                  focus:ring-blue-500/10
-                "
-              />
-            </div>
-
-            {/* Mobile Links */}
-            <nav className="flex flex-col gap-1">
-              {siteData.navLinks?.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenu(false)}
-                  className="
-                    flex
-                    items-center
-                    justify-between
-                    rounded-xl
-                    px-4
-                    py-3.5
-                    text-sm
-                    font-medium
-                    text-slate-700
-                    transition
-                    hover:bg-slate-50
-                    hover:text-blue-600
-                  "
-                >
-                  {link.name}
-
-                  <ChevronRight
-                    size={17}
-                    className="text-slate-400"
-                  />
-                </Link>
-              ))}
-            </nav>
-
-            {/* Mobile Buttons */}
-            <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
               <Link
                 href="/login"
-                onClick={() => setMobileMenu(false)}
-                className="
-                  flex
-                  h-12
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  border
-                  border-slate-200
-                  font-semibold
-                  text-slate-700
-                  transition
-                  hover:bg-slate-50
-                "
+                className="header-login-button"
               >
                 <LogIn size={17} />
                 Login
@@ -273,28 +255,517 @@ export default function Header({ siteData }) {
 
               <Link
                 href="/register"
-                onClick={() => setMobileMenu(false)}
-                className="
-                  flex
-                  h-12
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-blue-600
-                  font-semibold
-                  text-white
-                  transition
-                  hover:bg-blue-700
-                "
+                className="header-register-button"
               >
                 <UserPlus size={17} />
                 Register
               </Link>
+
             </div>
+          )}
+
+          {/* ================================================= */}
+          {/* AFTER LOGIN */}
+          {/* ================================================= */}
+
+          {user && (
+            <div className="header-user-area">
+
+              {/* CREDITS */}
+
+              <Link
+                href="/credits"
+                className="header-credit-box"
+              >
+                <div className="header-credit-icon">
+                  <Coins size={18} />
+                </div>
+
+                <div className="header-credit-content">
+                  <span className="header-credit-label">
+                    Available Credits
+                  </span>
+
+                  <span className="header-credit-number">
+                    {user.credits ?? 0}
+                  </span>
+                </div>
+              </Link>
+
+              {/* PROFILE */}
+
+              <div
+                ref={profileRef}
+                className="header-profile-wrapper"
+              >
+
+                <button
+                  type="button"
+                  className={`header-profile-button ${
+                    profileMenu
+                      ? "header-profile-button-active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setProfileMenu(
+                      (previous) => !previous
+                    )
+                  }
+                  aria-expanded={profileMenu}
+                  aria-label="Open account menu"
+                >
+
+                  <UserAvatar
+                    user={user}
+                    getInitial={getInitial}
+                    size="small"
+                  />
+
+                  <div className="header-profile-text">
+                    <span className="header-profile-name">
+                      {user.name || "My Account"}
+                    </span>
+
+                    <span className="header-profile-subtitle">
+                      My Account
+                    </span>
+                  </div>
+
+                  <ChevronDown
+                    size={16}
+                    className={`header-chevron ${
+                      profileMenu
+                        ? "header-chevron-open"
+                        : ""
+                    }`}
+                  />
+
+                </button>
+
+                {/* ================================================= */}
+                {/* PROFILE DROPDOWN */}
+                {/* ================================================= */}
+
+                {profileMenu && (
+                  <div className="header-profile-dropdown">
+
+                    <div className="profile-dropdown-top">
+
+                      <UserAvatar
+                        user={user}
+                        getInitial={getInitial}
+                        size="large"
+                      />
+
+                      <div className="profile-dropdown-details">
+
+                        <p className="profile-dropdown-name">
+                          {user.name || "User"}
+                        </p>
+
+                        <p className="profile-dropdown-info">
+                          {user.email ||
+                            user.phone ||
+                            `User ID: ${user.id || "-"}`}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                    <div className="profile-dropdown-credit-card">
+
+                      <div>
+                        <p className="profile-credit-label">
+                          Available Credits
+                        </p>
+
+                        <p className="profile-credit-value">
+                          {user.credits ?? 0}
+                        </p>
+                      </div>
+
+                      <div className="profile-credit-icon">
+                        <Coins size={20} />
+                      </div>
+
+                    </div>
+
+                    <div className="profile-dropdown-divider" />
+
+                    <div className="profile-dropdown-menu">
+
+                      <DropdownLink
+                        href="/profile"
+                        icon={<UserRound size={18} />}
+                        label="View Profile"
+                        onClick={() =>
+                          setProfileMenu(false)
+                        }
+                      />
+
+                      <DropdownLink
+                        href="/applied-jobs"
+                        icon={
+                          <BriefcaseBusiness size={18} />
+                        }
+                        label="Applied Jobs"
+                        onClick={() =>
+                          setProfileMenu(false)
+                        }
+                      />
+
+                      <DropdownLink
+                        href="/profile/settings"
+                        icon={<Settings size={18} />}
+                        label="Account Settings"
+                        onClick={() =>
+                          setProfileMenu(false)
+                        }
+                      />
+
+                    </div>
+
+                    <div className="profile-dropdown-divider" />
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="profile-dropdown-logout"
+                    >
+                      <LogOut size={18} />
+
+                      <span>
+                        Sign out
+                      </span>
+                    </button>
+
+                  </div>
+                )}
+
+              </div>
+
+            </div>
+          )}
+
+        </nav>
+
+        {/* ================================================= */}
+        {/* MOBILE MENU BUTTON */}
+        {/* ================================================= */}
+
+        <button
+          type="button"
+          className="header-mobile-button"
+          onClick={() => {
+            setMobileMenu(
+              (previous) => !previous
+            );
+
+            setProfileMenu(false);
+          }}
+          aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenu}
+        >
+          {mobileMenu ? (
+            <X size={23} />
+          ) : (
+            <Menu size={23} />
+          )}
+        </button>
+
+      </div>
+
+      {/* ================================================= */}
+      {/* MOBILE NAVIGATION */}
+      {/* ================================================= */}
+
+      {mobileMenu && (
+        <div className="mobile-header-menu">
+
+          <div className="mobile-header-container">
+
+            {/* LOGGED IN USER */}
+
+            {user && (
+              <div className="mobile-user-card">
+
+                <UserAvatar
+                  user={user}
+                  getInitial={getInitial}
+                  size="large"
+                />
+
+                <div className="mobile-user-details">
+
+                  <p className="mobile-user-name">
+                    {user.name}
+                  </p>
+
+                  <p className="mobile-user-email">
+                    {user.email ||
+                      user.phone ||
+                      user.id}
+                  </p>
+
+                </div>
+
+                <Link
+                  href="/profile"
+                  className="mobile-profile-arrow"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <ChevronRight size={18} />
+                </Link>
+
+              </div>
+            )}
+
+            {/* SEARCH */}
+
+            <div className="mobile-search-box">
+
+              <Search
+                size={18}
+                className="mobile-search-icon"
+              />
+
+              <input
+                type="search"
+                placeholder="Search jobs, companies, skills..."
+                className="mobile-search-input"
+              />
+
+            </div>
+
+            {/* NAVIGATION */}
+
+            <div className="mobile-nav-links">
+
+              {siteData.navLinks?.map((link) => (
+                <Link
+                  href={link.href}
+                  key={link.href}
+                  className="mobile-nav-link"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <span>
+                    {link.name}
+                  </span>
+
+                  <ChevronRight size={17} />
+                </Link>
+              ))}
+
+            </div>
+
+            {/* BEFORE LOGIN */}
+
+            {!user && (
+              <div className="mobile-auth-buttons">
+
+                <Link
+                  href="/login"
+                  className="mobile-login-button"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <LogIn size={18} />
+
+                  Login
+                </Link>
+
+                <Link
+                  href="/register"
+                  className="mobile-register-button"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <UserPlus size={18} />
+
+                  Register
+                </Link>
+
+              </div>
+            )}
+
+            {/* AFTER LOGIN */}
+
+            {user && (
+              <div className="mobile-user-section">
+
+                <Link
+                  href="/credits"
+                  className="mobile-credit-card"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <div className="mobile-credit-left">
+
+                    <Coins size={19} />
+
+                    <span>
+                      Available Credits
+                    </span>
+
+                  </div>
+
+                  <strong>
+                    {user.credits ?? 0}
+                  </strong>
+                </Link>
+
+                <Link
+                  href="/profile"
+                  className="mobile-account-link"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <UserRound size={18} />
+
+                  <span>
+                    View Profile
+                  </span>
+
+                  <ChevronRight
+                    size={16}
+                    className="mobile-link-arrow"
+                  />
+                </Link>
+
+                <Link
+                  href="/applied-jobs"
+                  className="mobile-account-link"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <BriefcaseBusiness size={18} />
+
+                  <span>
+                    Applied Jobs
+                  </span>
+
+                  <ChevronRight
+                    size={16}
+                    className="mobile-link-arrow"
+                  />
+                </Link>
+
+                <Link
+                  href="/profile/settings"
+                  className="mobile-account-link"
+                  onClick={() =>
+                    setMobileMenu(false)
+                  }
+                >
+                  <Settings size={18} />
+
+                  <span>
+                    Account Settings
+                  </span>
+
+                  <ChevronRight
+                    size={16}
+                    className="mobile-link-arrow"
+                  />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="mobile-logout-button"
+                >
+                  <LogOut size={18} />
+
+                  Sign out
+                </button>
+
+              </div>
+            )}
+
           </div>
+
         </div>
       )}
+
     </header>
+  );
+}
+
+// ======================================================
+// USER AVATAR
+// ======================================================
+
+function UserAvatar({
+  user,
+  getInitial,
+  size = "small",
+}) {
+  const avatarClass =
+    size === "large"
+      ? "user-avatar user-avatar-large"
+      : "user-avatar user-avatar-small";
+
+  if (user?.avatar) {
+    return (
+      <div className={avatarClass}>
+        <Image
+          src={user.avatar}
+          alt={user.name || "User"}
+          fill
+          sizes={size === "large" ? "48px" : "40px"}
+          className="user-avatar-image"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${avatarClass} user-avatar-fallback`}
+    >
+      {getInitial()}
+    </div>
+  );
+}
+
+// ======================================================
+// DROPDOWN LINK
+// ======================================================
+
+function DropdownLink({
+  href,
+  icon,
+  label,
+  onClick,
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="profile-dropdown-link"
+    >
+      <span className="profile-dropdown-link-icon">
+        {icon}
+      </span>
+
+      <span className="profile-dropdown-link-text">
+        {label}
+      </span>
+
+      <ChevronRight
+        size={16}
+        className="profile-dropdown-link-arrow"
+      />
+    </Link>
   );
 }
